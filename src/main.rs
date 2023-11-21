@@ -1,20 +1,35 @@
 #![allow(dead_code)]
 
+mod processes;
 mod state;
-
+mod to_do;
 use serde_json::value::Value;
-use serde_json::{json, Map};
-use state::{read_file, write_to_file};
+use serde_json::Map;
+use state::read_file;
 use std::env;
+
+use processes::process_input;
+use to_do::enums::TaskStatus;
+use to_do::to_do_factory;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    println!("{:?}", args);
-    let status: &String = &args[1];
+    let command: &String = &args[1];
     let title: &String = &args[2];
-    let mut state: Map<String, Value> = read_file("state.json");
-    println!("Before operation {:?}", state);
-    state.insert(title.to_string(), json!(status));
-    println!("After Operation {:?}", state);
-    write_to_file("state.json", &mut state)
+
+    let state: Map<String, Value> = read_file("state.json");
+    let status: String;
+
+    match &state.get(*&title) {
+        Some(result) => {
+            status = result.to_string().replace("\"", "");
+        }
+
+        None => {
+            status = "pending".to_owned();
+        }
+    }
+
+    let item = to_do_factory(title, TaskStatus::from_str(status.to_uppercase()));
+    process_input(item, command.to_string(), &state)
 }
