@@ -1,10 +1,7 @@
 # rust_web_app
 
-## example :
-# cargo run pending reading
 
-
-## to create a task
+## to create a task 
 ###  cargo run create running
 
 ## to set the task to done
